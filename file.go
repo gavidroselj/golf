@@ -22,12 +22,11 @@ func init() {
 	}
 }
 
-func getFilePath(t *testing.T, modifiers ...string) string {
-	if len(modifiers) == 0 {
+func getFilePath(t *testing.T, modifier *Modifier) string {
+	if modifier == nil {
 		return fmt.Sprintf("%s/%s.golden", config.BasePath, t.Name())
 	}
 
-	modifier := strings.Join(modifiers, ".")
 	return fmt.Sprintf("%s/%s.%s.golden", config.BasePath, t.Name(), modifier)
 }
 
@@ -48,5 +47,19 @@ func writeFile(t *testing.T, filePath string, data []byte) {
 func updateFileIfFlagSet(t *testing.T, filePath string, data []byte) {
 	if *updateGoldenFiles {
 		writeFile(t, filePath, data)
+	}
+}
+
+type Modifier struct {
+	modifiers []string
+}
+
+func (m *Modifier) String() string {
+	return strings.Join(m.modifiers, ".")
+}
+
+func Modifiers(modifiers ...string) *Modifier {
+	return &Modifier{
+		modifiers: modifiers,
 	}
 }
