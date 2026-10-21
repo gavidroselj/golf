@@ -1,12 +1,14 @@
 package golf
 
 type Config struct {
-	BasePath string `json:"base_path"`
+	BasePath                string `json:"base_path"`
+	DynamicValuePlaceholder string `json:"dynamic_value_placeholder"`
 }
 
 func defaultConfig() Config {
 	return Config{
-		BasePath: "testdata",
+		BasePath:                "testdata",
+		DynamicValuePlaceholder: "-- DYNAMIC VALUE --",
 	}
 }
 
@@ -23,5 +25,11 @@ func Configure(opts ...Option) {
 func WithBasePath(basePath string) Option {
 	return func(c *Config) {
 		c.BasePath = basePath
+	}
+}
+
+func WithDynamicValuePlaceholder(dynamicValuePlaceholder string) Option {
+	return func(c *Config) {
+		c.DynamicValuePlaceholder = dynamicValuePlaceholder
 	}
 }
