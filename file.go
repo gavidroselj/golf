@@ -16,12 +16,6 @@ var (
 	updateGoldenFiles = flag.Bool("update", false, "update golden files")
 )
 
-func init() {
-	if !flag.Parsed() {
-		flag.Parse()
-	}
-}
-
 func getFilePath(t *testing.T, modifier *Modifier) string {
 	if modifier == nil {
 		return fmt.Sprintf("%s/%s.golden", config.BasePath, t.Name())
@@ -45,7 +39,7 @@ func writeFile(t *testing.T, filePath string, data []byte) {
 }
 
 func updateFileIfFlagSet(t *testing.T, filePath string, data []byte) {
-	if *updateGoldenFiles {
+	if !config.inhibitUpdate && *updateGoldenFiles {
 		writeFile(t, filePath, data)
 	}
 }

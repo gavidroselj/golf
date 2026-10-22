@@ -11,19 +11,24 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-func AssertRawWithModifiers(t *testing.T, data string, modifier *Modifier) {
+func readAndUpdateFile(t *testing.T, data []byte, modifier *Modifier) []byte {
 	filePath := getFilePath(t, modifier)
+	updateFileIfFlagSet(t, filePath, data)
 
-	updateFileIfFlagSet(t, filePath, []byte(data))
+	return readFile(t, filePath)
+}
 
-	goldenData := readFile(t, filePath)
+func AssertBytes(t *testing.T, data []byte, modifier *Modifier) {
+	goldenData := readAndUpdateFile(t, data, modifier)
 	assert.Equal(t, goldenData, data)
 }
 
-func AssertJSON(t *testing.T, data any, modifier *Modifier, dynamicValues DynamicValues) {
-	jsonData, err := json.Marshal(data, json.Deterministic(true), jsontext.Multiline(true))
-	assert.NoError(t, err, "Failed to marshall data to json", data)
+func AssertString(t *testing.T, data string, modifier *Modifier) {
+	goldenData := string(readAndUpdateFile(t, []byte(data), modifier))
+	assert.Equal(t, goldenData, data)
+}
 
+func checkDynamicValues(t *testing.T, jsonData []byte, dynamicValues DynamicValues) []byte {
 	for path, dynamicValue := range dynamicValues {
 		parsedPath, err := jsonparser.ParsePath(path)
 		assert.NoError(t, err, "Failed to parse JSON path", path)
@@ -40,12 +45,17 @@ func AssertJSON(t *testing.T, data any, modifier *Modifier, dynamicValues Dynami
 		assert.NoError(t, err, "Failed to replace dynamic value with placeholder")
 	}
 
-	filePath := getFilePath(t, modifier)
+	return jsonData
+}
 
-	updateFileIfFlagSet(t, filePath, jsonData)
+func AssertJson(t *testing.T, data any, modifier *Modifier, dynamicValues DynamicValues) {
+	jsonData, err := json.Marshal(data, json.Deterministic(true), jsontext.Multiline(true))
+	assert.NoError(t, err, "Failed to marshall data to json", data)
 
-	goldenData := readFile(t, filePath)
-	assert.JSONEq(t, string(goldenData), string(jsonData))
+	nonDynamicData := checkDynamicValues(t, jsonData, dynamicValues)
+
+	goldenData := readAndUpdateFile(t, nonDynamicData, modifier)
+	assert.JSONEq(t, string(goldenData), string(nonDynamicData))
 }
 
 func AssertGormTable(t *testing.T, db *gorm.DB, model any, dynamicValues DynamicValues) {
@@ -57,5 +67,5 @@ func AssertGormTable(t *testing.T, db *gorm.DB, model any, dynamicValues Dynamic
 
 	modifier := Modifiers("db", result.Statement.Schema.Table)
 
-	AssertJSON(t, data, modifier, dynamicValues)
+	AssertJson(t, data, modifier, dynamicValues)
 }
