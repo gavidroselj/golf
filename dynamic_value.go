@@ -41,7 +41,9 @@ func ValueTimeInPastDuration(dur time.Duration) DynamicValue {
 	return func(t TestingT, v string) {
 		ti, err := time.Parse(time.RFC3339, v)
 		assert.NoError(t, err)
-		assert.WithinRange(t, ti, time.Now().Add(-dur), time.Now())
+
+		now := time.Now().Round(time.Second)
+		assert.WithinRange(t, ti, now.Add(-dur), now)
 	}
 }
 
