@@ -6,17 +6,15 @@ import (
 	"os"
 	"path"
 	"strings"
-	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 var (
 	updateGoldenFiles = flag.Bool("update", false, "update golden files")
 )
 
-func getFilePath(t *testing.T, modifier *Modifier) string {
+func getFilePath(t TestingT, modifier *Modifier) string {
 	if modifier == nil {
 		return fmt.Sprintf("%s/%s.golden", config.BasePath, t.Name())
 	}
@@ -24,21 +22,21 @@ func getFilePath(t *testing.T, modifier *Modifier) string {
 	return fmt.Sprintf("%s/%s.%s.golden", config.BasePath, t.Name(), modifier)
 }
 
-func readFile(t *testing.T, filePath string) []byte {
+func readFile(t TestingT, filePath string) []byte {
 	f, err := os.ReadFile(filePath)
 	assert.NoError(t, err, "Error loading golden file")
 	return f
 }
 
-func writeFile(t *testing.T, filePath string, data []byte) {
+func writeFile(t TestingT, filePath string, data []byte) {
 	err := os.MkdirAll(path.Dir(filePath), 0755)
-	require.NoError(t, err, "Failed to create golden file folder")
+	assert.NoError(t, err, "Failed to create golden file folder")
 
 	err = os.WriteFile(filePath, data, 0644)
-	require.NoError(t, err, "Failed to write golden file")
+	assert.NoError(t, err, "Failed to write golden file")
 }
 
-func updateFileIfFlagSet(t *testing.T, filePath string, data []byte) {
+func updateFileIfFlagSet(t TestingT, filePath string, data []byte) {
 	if !config.inhibitUpdate && *updateGoldenFiles {
 		writeFile(t, filePath, data)
 	}
