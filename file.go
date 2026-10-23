@@ -15,11 +15,18 @@ var (
 )
 
 func getFilePath(t TestingT, modifier *Modifier) string {
-	if modifier == nil {
-		return fmt.Sprintf("%s/%s.golden", config.BasePath, t.Name())
+	cfg := getConfig(t)
+
+	testPath := t.Name()
+	if cfg.IgnoreSubtestNames {
+		testPath = TopLevelTestName(t)
 	}
 
-	return fmt.Sprintf("%s/%s.%s.golden", config.BasePath, t.Name(), modifier)
+	if modifier == nil {
+		return fmt.Sprintf("%s/%s.golden", cfg.BasePath, testPath)
+	}
+
+	return fmt.Sprintf("%s/%s.%s.golden", cfg.BasePath, testPath, modifier)
 }
 
 func readFile(t TestingT, filePath string) []byte {
@@ -37,7 +44,9 @@ func writeFile(t TestingT, filePath string, data []byte) {
 }
 
 func updateFileIfFlagSet(t TestingT, filePath string, data []byte) {
-	if !config.inhibitUpdate && *updateGoldenFiles {
+	cfg := getConfig(t)
+
+	if !cfg.inhibitUpdate && *updateGoldenFiles {
 		writeFile(t, filePath, data)
 	}
 }

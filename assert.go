@@ -28,6 +28,8 @@ func AssertString(t TestingT, data string, modifier *Modifier) {
 }
 
 func checkDynamicValues(t TestingT, jsonData []byte, dynamicValues DynamicValues) []byte {
+	cfg := getConfig(t)
+
 	for path, dynamicValue := range dynamicValues {
 		parsedPath, err := jsonparser.ParsePath(path)
 		assert.NoError(t, err, "Failed to parse JSON path", path)
@@ -40,7 +42,7 @@ func checkDynamicValues(t TestingT, jsonData []byte, dynamicValues DynamicValues
 
 		dynamicValue(t, value)
 
-		jsonData, err = jsonparser.SetString(jsonData, config.DynamicValuePlaceholder, parsedPath...)
+		jsonData, err = jsonparser.SetString(jsonData, cfg.DynamicValuePlaceholder, parsedPath...)
 		assert.NoError(t, err, "Failed to replace dynamic value with placeholder")
 	}
 

@@ -10,6 +10,7 @@ import (
 type TestingT interface {
 	assert.TestingT
 	Name() string
+	Cleanup(func())
 }
 
 type T struct {
@@ -24,6 +25,9 @@ func NewT(t *testing.T) *T {
 
 func (t *T) Name() string {
 	return t.name
+}
+
+func (t *T) Cleanup(func()) {
 }
 
 func (t *T) Collect() *T {

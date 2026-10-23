@@ -11,7 +11,7 @@ import (
 
 func TestMain(m *testing.M) {
 	// Prevent automatic test file updates during testing
-	Configure(withInhibitUpdate(true))
+	SetDefaults(withInhibitUpdate(true))
 
 	os.Exit(m.Run())
 }
@@ -33,16 +33,32 @@ func TestReadAndUpdateFile(t *testing.T) {
 }
 
 func TestAssertBytes(t *testing.T) {
-	t.Run("ok", func(t *testing.T) {
+	Configure(t, WithIgnoreSubtestNames(true))
+
+	t.Run("match", func(t *testing.T) {
 		data := []byte("Bytes Data")
 		AssertBytes(t, data, nil)
+	})
+	t.Run("mismatch", func(t *testing.T) {
+		ExpectFailure(t, func(t TestingT) {
+			data := []byte("Wrong Data")
+			AssertBytes(t, data, nil)
+		})
 	})
 }
 
 func TestAssertString(t *testing.T) {
-	t.Run("ok", func(t *testing.T) {
+	Configure(t, WithIgnoreSubtestNames(true))
+
+	t.Run("match", func(t *testing.T) {
 		data := "String Data"
 		AssertString(t, data, nil)
+	})
+	t.Run("mismatch", func(t *testing.T) {
+		ExpectFailure(t, func(t TestingT) {
+			data := "Wrong Data"
+			AssertString(t, data, nil)
+		})
 	})
 }
 
