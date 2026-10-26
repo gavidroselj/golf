@@ -14,12 +14,12 @@ var (
 	updateGoldenFiles = flag.Bool("update", false, "update golden files")
 )
 
-func getFilePath(t TestingT, modifier *Modifier) string {
+func getFilePath(t TestingT, modifier *Modifiers) string {
 	cfg := getConfig(t)
 
 	testPath := t.Name()
 	if cfg.IgnoreSubtestNames {
-		testPath = TopLevelTestName(t)
+		testPath = topLevelTestName(t)
 	}
 
 	if modifier == nil {
@@ -46,21 +46,25 @@ func writeFile(t TestingT, filePath string, data []byte) {
 func updateFileIfFlagSet(t TestingT, filePath string, data []byte) {
 	cfg := getConfig(t)
 
-	if !cfg.inhibitUpdate && *updateGoldenFiles {
+	if !cfg.InhibitUpdate && *updateGoldenFiles {
 		writeFile(t, filePath, data)
 	}
 }
 
-type Modifier struct {
+// Modifiers is used to differentiate multiple different golden files used in the same test.
+// It appends all modifiers to the file name, ending with the .golden extension.
+// Example: A test named "TestSomething" with subtest name "abc" and modifiers ["mod1"] would be saved in BasePath/TestSomething/abc.mod1.golden
+type Modifiers struct {
 	modifiers []string
 }
 
-func (m *Modifier) String() string {
+func (m *Modifiers) String() string {
 	return strings.Join(m.modifiers, ".")
 }
 
-func Modifiers(modifiers ...string) *Modifier {
-	return &Modifier{
+// NewModifiers is a utility function that creates a Modifiers object from the provided strings.
+func NewModifiers(modifiers ...string) *Modifiers {
+	return &Modifiers{
 		modifiers: modifiers,
 	}
 }

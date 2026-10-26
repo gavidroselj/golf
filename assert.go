@@ -10,19 +10,19 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-func readAndUpdateFile(t TestingT, data []byte, modifier *Modifier) []byte {
+func readAndUpdateFile(t TestingT, data []byte, modifier *Modifiers) []byte {
 	filePath := getFilePath(t, modifier)
 	updateFileIfFlagSet(t, filePath, data)
 
 	return readFile(t, filePath)
 }
 
-func AssertBytes(t TestingT, data []byte, modifier *Modifier) {
+func AssertBytes(t TestingT, data []byte, modifier *Modifiers) {
 	goldenData := readAndUpdateFile(t, data, modifier)
 	assert.Equal(t, goldenData, data)
 }
 
-func AssertString(t TestingT, data string, modifier *Modifier) {
+func AssertString(t TestingT, data string, modifier *Modifiers) {
 	goldenData := string(readAndUpdateFile(t, []byte(data), modifier))
 	assert.Equal(t, goldenData, data)
 }
@@ -49,7 +49,7 @@ func checkDynamicValues(t TestingT, jsonData []byte, dynamicValues DynamicValues
 	return jsonData
 }
 
-func AssertJson(t TestingT, data any, modifier *Modifier, dynamicValues DynamicValues) {
+func AssertJson(t TestingT, data any, modifier *Modifiers, dynamicValues DynamicValues) {
 	jsonData, err := json.Marshal(data, json.Deterministic(true), jsontext.Multiline(true))
 	assert.NoError(t, err, "Failed to marshall data to json", data)
 
@@ -66,7 +66,7 @@ func AssertGormTable(t TestingT, db *gorm.DB, model any, dynamicValues DynamicVa
 	data, err := json.Marshal(model)
 	assert.NoError(t, err)
 
-	modifier := Modifiers("db", result.Statement.Schema.Table)
+	modifier := NewModifiers("db", result.Statement.Schema.Table)
 
 	AssertJson(t, data, modifier, dynamicValues)
 }

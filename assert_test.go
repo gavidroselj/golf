@@ -11,7 +11,7 @@ import (
 
 func TestMain(m *testing.M) {
 	// Prevent automatic test file updates during testing
-	SetDefaults(withInhibitUpdate(true))
+	SetDefaults(WithInhibitUpdate(true))
 
 	os.Exit(m.Run())
 }
