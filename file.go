@@ -51,6 +51,13 @@ func updateFileIfFlagSet(t TestingT, filePath string, data []byte) {
 	}
 }
 
+func readAndUpdateFile(t TestingT, data []byte, modifier *Modifiers) []byte {
+	filePath := getFilePath(t, modifier)
+	updateFileIfFlagSet(t, filePath, data)
+
+	return readFile(t, filePath)
+}
+
 // Modifiers is used to differentiate multiple different golden files used in the same test.
 // It appends all modifiers to the file name, ending with the .golden extension.
 // Example: A test named "TestSomething" with subtest name "abc" and modifiers ["mod1"] would be saved in BasePath/TestSomething/abc.mod1.golden

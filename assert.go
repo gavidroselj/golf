@@ -10,13 +10,6 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-func readAndUpdateFile(t TestingT, data []byte, modifier *Modifiers) []byte {
-	filePath := getFilePath(t, modifier)
-	updateFileIfFlagSet(t, filePath, data)
-
-	return readFile(t, filePath)
-}
-
 func AssertBytes(t TestingT, data []byte, modifier *Modifiers) {
 	goldenData := readAndUpdateFile(t, data, modifier)
 	assert.Equal(t, goldenData, data)

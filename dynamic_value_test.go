@@ -155,3 +155,41 @@ func TestValueRegexp(t *testing.T) {
 		})
 	})
 }
+
+func TestValueBcryptPassword(t *testing.T) {
+	// password123
+	const hash = "$2y$10$0PBcxOCMl6a0a3UCDW5b2easnSkBuHVP.r3LSwdmtREUWvG73u0Wy"
+
+	t.Run("success", func(t *testing.T) {
+		val := ValueBcryptPassword("password123")
+		val(t, hash)
+	})
+
+	t.Run("fail-wrong-password", func(t *testing.T) {
+		ExpectFailure(t, func(t TestingT) {
+			val := ValueBcryptPassword("abc")
+			val(t, hash)
+		})
+	})
+
+	t.Run("fail-decrypted", func(t *testing.T) {
+		ExpectFailure(t, func(t TestingT) {
+			val := ValueBcryptPassword("password123")
+			val(t, "password123")
+		})
+	})
+
+	t.Run("fail-format", func(t *testing.T) {
+		ExpectFailure(t, func(t TestingT) {
+			val := ValueBcryptPassword("password123")
+			val(t, "abc")
+		})
+	})
+
+	t.Run("fail-empty", func(t *testing.T) {
+		ExpectFailure(t, func(t TestingT) {
+			val := ValueBcryptPassword("password123")
+			val(t, "")
+		})
+	})
+}
