@@ -1,0 +1,6 @@
+{
+	"string_field": "-- DYNAMIC VALUE --",
+	"int_field": 123,
+	"bool_field": true,
+	"time_field": "-- DYNAMIC VALUE --"
+}
