@@ -94,14 +94,14 @@ func TestValueTime(t *testing.T) {
 func TestValueTimeInPastDuration(t *testing.T) {
 	t.Run("success-now", func(t *testing.T) {
 		for range variantTestCount {
-			val := ValueTimeInPastDuration(time.Second)
+			val := ValueTimeInPastDuration(3 * time.Second)
 			val(t, time.Now().Format(time.RFC3339))
 		}
 	})
 
 	t.Run("success-past", func(t *testing.T) {
 		for range variantTestCount {
-			val := ValueTimeInPastDuration(time.Second)
+			val := ValueTimeInPastDuration(3 * time.Second)
 			val(t, time.Now().Add(-time.Millisecond*200).Format(time.RFC3339))
 		}
 	})

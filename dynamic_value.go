@@ -48,13 +48,14 @@ func ValueTime() DynamicValue {
 }
 
 // ValueTimeInPastDuration checks whether the value is a valid RFC3339 timestamp between Now and `dur` before now.
+// Times in the future up to 100 milliseconds are accepted to prevent flakey tests.
 func ValueTimeInPastDuration(dur time.Duration) DynamicValue {
 	return func(t TestingT, v string) {
 		ti, err := time.Parse(time.RFC3339, v)
 		assert.NoError(t, err)
 
-		now := time.Now().Round(time.Second)
-		assert.WithinRange(t, ti, now.Add(-dur), now)
+		now := time.Now()
+		assert.WithinRange(t, ti, now.Add(-dur), now.Add(100*time.Millisecond))
 	}
 }
 
