@@ -65,6 +65,8 @@ See configuration options WithBasePath and WithIgnoreSbutestNames to fine tune t
 
 Modifiers will be appended to the golden file name, thus allowing you to have multiple different golden files in the same test.
 
+Example: A test named "TestSomething" with subtest name "abc" and modifiers ["mod1", "mod2"] would be saved in BasePath/TestSomething/abc.mod1.mod2.golden
+
 ### Dynamic values
 
 JSON and all higher level assertions support field values that are different on every test run, but follow specific rules.
