@@ -3,6 +3,7 @@ package golf
 import (
 	"encoding/json/jsontext"
 	json "encoding/json/v2"
+	"slices"
 
 	"github.com/buger/jsonparser"
 	"github.com/stretchr/testify/assert"
@@ -10,13 +11,17 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-func AssertBytes(t TestingT, data []byte, modifier *Modifiers) {
-	goldenData := readAndUpdateFile(t, data, modifier)
+const (
+	modifierDatabase = "db"
+)
+
+func AssertBytes(t TestingT, data []byte, modifiers ...string) {
+	goldenData := readAndUpdateFile(t, data, modifiers...)
 	assert.Equal(t, goldenData, data)
 }
 
-func AssertString(t TestingT, data string, modifier *Modifiers) {
-	goldenData := string(readAndUpdateFile(t, []byte(data), modifier))
+func AssertString(t TestingT, data string, modifiers ...string) {
+	goldenData := string(readAndUpdateFile(t, []byte(data), modifiers...))
 	assert.Equal(t, goldenData, data)
 }
 
@@ -42,24 +47,26 @@ func checkDynamicValues(t TestingT, jsonData []byte, dynamicValues DynamicValues
 	return jsonData
 }
 
-func AssertJson(t TestingT, data any, modifier *Modifiers, dynamicValues DynamicValues) {
+func AssertJson(t TestingT, data any, dynamicValues DynamicValues, modifiers ...string) {
 	jsonData, err := json.Marshal(data, json.Deterministic(true), jsontext.Multiline(true))
 	assert.NoError(t, err, "Failed to marshall data to json", data)
 
 	nonDynamicData := checkDynamicValues(t, jsonData, dynamicValues)
 
-	goldenData := readAndUpdateFile(t, nonDynamicData, modifier)
+	goldenData := readAndUpdateFile(t, nonDynamicData, modifiers...)
 	assert.JSONEq(t, string(goldenData), string(nonDynamicData))
 }
 
-func AssertGormTable(t TestingT, db *gorm.DB, model any, dynamicValues DynamicValues) {
+func AssertGormTable(t TestingT, db *gorm.DB, model any, dynamicValues DynamicValues, modifiers ...string) {
 	result := db.Order(clause.OrderByColumn{Column: clause.PrimaryColumn}).Find(&model)
 	assert.NoError(t, result.Error)
 
 	data, err := json.Marshal(model)
 	assert.NoError(t, err)
 
-	modifier := NewModifiers("db", result.Statement.Schema.Table)
+	modifierTableName := result.Statement.Schema.Table
 
-	AssertJson(t, data, modifier, dynamicValues)
+	modifiers = slices.Insert(modifiers, 0, modifierDatabase, modifierTableName)
+
+	AssertJson(t, data, dynamicValues, modifiers...)
 }

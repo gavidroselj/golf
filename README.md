@@ -16,7 +16,10 @@ Add assertion statements to your tests as needed.
 package examples
 
 import (
+	"crypto/rand"
 	"testing"
+	"time"
+	"uuid"
 
 	"github.com/gavidroselj/golf"
 )
@@ -28,17 +31,17 @@ type ExampleStruct struct {
 
 func TestExample(t *testing.T) {
 	// Assert a string matches a golden file
-	golf.AssertString(t, "abc", golf.NewModifiers("string"))
+	golf.AssertString(t, "abc", "string")
 
 	// Assert bytes matches a golden file
-	golf.AssertBytes(t, []byte{'d', 'e', 'f'}, golf.NewModifiers("bytes"))
+	golf.AssertBytes(t, []byte{'d', 'e', 'f'}, "bytes")
 
 	// Marshall data to JSON and assert against a golden file
 	data := ExampleStruct{
 		Field1: "abc",
 		Field2: "def",
 	}
-	golf.AssertJson(t, data, golf.NewModifiers("json"), nil)
+	golf.AssertJson(t, data, nil, "json")
 }
 ```
 
@@ -88,11 +91,11 @@ func TestDynamic(t *testing.T) {
 		UUID:   uuid.New(),
 	}
 
-	golf.AssertJson(t, data, golf.NewModifiers("json"), golf.DynamicValues{
+	golf.AssertJson(t, data, golf.DynamicValues{
 		"$.random": golf.ValueEqual(randString),
 		"$.time":   golf.ValueTimeInPastDuration(3 * time.Second),
 		"$.uuid":   golf.ValueUUID(),
-	})
+	}, "json")
 }
 ```
 

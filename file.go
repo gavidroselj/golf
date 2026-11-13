@@ -14,7 +14,7 @@ var (
 	updateGoldenFiles = flag.Bool("update", false, "update golden files")
 )
 
-func getFilePath(t TestingT, modifier *Modifiers) string {
+func getFilePath(t TestingT, modifiers ...string) string {
 	cfg := getConfig(t)
 
 	testPath := t.Name()
@@ -22,11 +22,13 @@ func getFilePath(t TestingT, modifier *Modifiers) string {
 		testPath = topLevelTestName(t)
 	}
 
-	if modifier == nil {
+	if len(modifiers) == 0 {
 		return fmt.Sprintf("%s/%s.golden", cfg.BasePath, testPath)
 	}
 
-	return fmt.Sprintf("%s/%s.%s.golden", cfg.BasePath, testPath, modifier)
+	modifierString := strings.Join(modifiers, ".")
+
+	return fmt.Sprintf("%s/%s.%s.golden", cfg.BasePath, testPath, modifierString)
 }
 
 func readFile(t TestingT, filePath string) []byte {
@@ -51,27 +53,9 @@ func updateFileIfFlagSet(t TestingT, filePath string, data []byte) {
 	}
 }
 
-func readAndUpdateFile(t TestingT, data []byte, modifier *Modifiers) []byte {
-	filePath := getFilePath(t, modifier)
+func readAndUpdateFile(t TestingT, data []byte, modifiers ...string) []byte {
+	filePath := getFilePath(t, modifiers...)
 	updateFileIfFlagSet(t, filePath, data)
 
 	return readFile(t, filePath)
-}
-
-// Modifiers is used to differentiate multiple different golden files used in the same test.
-// It appends all modifiers to the file name, ending with the .golden extension.
-// Example: A test named "TestSomething" with subtest name "abc" and modifiers ["mod1"] would be saved in BasePath/TestSomething/abc.mod1.golden
-type Modifiers struct {
-	modifiers []string
-}
-
-func (m *Modifiers) String() string {
-	return strings.Join(m.modifiers, ".")
-}
-
-// NewModifiers is a utility function that creates a Modifiers object from the provided strings.
-func NewModifiers(modifiers ...string) *Modifiers {
-	return &Modifiers{
-		modifiers: modifiers,
-	}
 }
