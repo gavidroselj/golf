@@ -16,7 +16,10 @@ Add assertion statements to your tests as needed.
 package examples
 
 import (
+	"crypto/rand"
 	"testing"
+	"time"
+	"uuid"
 
 	"github.com/gavidroselj/golf"
 )
@@ -28,17 +31,17 @@ type ExampleStruct struct {
 
 func TestExample(t *testing.T) {
 	// Assert a string matches a golden file
-	golf.AssertString(t, "abc", golf.NewModifiers("string"))
+	golf.AssertString(t, "abc", "string")
 
 	// Assert bytes matches a golden file
-	golf.AssertBytes(t, []byte{'d', 'e', 'f'}, golf.NewModifiers("bytes"))
+	golf.AssertBytes(t, []byte{'d', 'e', 'f'}, "bytes")
 
 	// Marshall data to JSON and assert against a golden file
 	data := ExampleStruct{
 		Field1: "abc",
 		Field2: "def",
 	}
-	golf.AssertJson(t, data, golf.NewModifiers("json"), nil)
+	golf.AssertJson(t, data, nil, "json")
 }
 ```
 
@@ -61,6 +64,8 @@ By default, each test gets it's test file name from t.Name(), which is in the fo
 See configuration options WithBasePath and WithIgnoreSbutestNames to fine tune this behavior.
 
 Modifiers will be appended to the golden file name, thus allowing you to have multiple different golden files in the same test.
+
+Example: A test named "TestSomething" with subtest name "abc" and modifiers ["mod1", "mod2"] would be saved in BasePath/TestSomething/abc.mod1.mod2.golden
 
 ### Dynamic values
 
@@ -88,11 +93,11 @@ func TestDynamic(t *testing.T) {
 		UUID:   uuid.New(),
 	}
 
-	golf.AssertJson(t, data, golf.NewModifiers("json"), golf.DynamicValues{
+	golf.AssertJson(t, data, golf.DynamicValues{
 		"$.random": golf.ValueEqual(randString),
 		"$.time":   golf.ValueTimeInPastDuration(3 * time.Second),
 		"$.uuid":   golf.ValueUUID(),
-	})
+	}, "json")
 }
 ```
 

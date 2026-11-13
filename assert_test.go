@@ -19,13 +19,13 @@ func TestMain(m *testing.M) {
 func TestReadAndUpdateFile(t *testing.T) {
 	t.Run("match", func(t *testing.T) {
 		data := []byte("Raw Data")
-		goldenData := readAndUpdateFile(t, []byte(data), nil)
+		goldenData := readAndUpdateFile(t, []byte(data))
 
 		assert.Equal(t, data, goldenData)
 	})
 	t.Run("mismatch", func(t *testing.T) {
 		data := []byte("Wrong Data")
-		goldenData := readAndUpdateFile(t, data, nil)
+		goldenData := readAndUpdateFile(t, data)
 
 		assert.NotEqual(t, data, goldenData)
 	})
@@ -37,12 +37,12 @@ func TestAssertBytes(t *testing.T) {
 
 	t.Run("match", func(t *testing.T) {
 		data := []byte("Bytes Data")
-		AssertBytes(t, data, nil)
+		AssertBytes(t, data)
 	})
 	t.Run("mismatch", func(t *testing.T) {
 		ExpectFailure(t, func(t TestingT) {
 			data := []byte("Wrong Data")
-			AssertBytes(t, data, nil)
+			AssertBytes(t, data)
 		})
 	})
 }
@@ -52,12 +52,12 @@ func TestAssertString(t *testing.T) {
 
 	t.Run("match", func(t *testing.T) {
 		data := "String Data"
-		AssertString(t, data, nil)
+		AssertString(t, data)
 	})
 	t.Run("mismatch", func(t *testing.T) {
 		ExpectFailure(t, func(t TestingT) {
 			data := "Wrong Data"
-			AssertString(t, data, nil)
+			AssertString(t, data)
 		})
 	})
 }
@@ -80,7 +80,7 @@ func newTestModel() TestModel {
 
 func TestAssertJson(t *testing.T) {
 	t.Run("static", func(t *testing.T) {
-		AssertJson(t, newTestModel(), nil, nil)
+		AssertJson(t, newTestModel(), nil)
 	})
 	t.Run("dynamic", func(t *testing.T) {
 		randString := rand.Text()
@@ -95,6 +95,6 @@ func TestAssertJson(t *testing.T) {
 			"$.time_field":   ValueTimeInPastDuration(time.Second * 5),
 		}
 
-		AssertJson(t, model, nil, dv)
+		AssertJson(t, model, dv)
 	})
 }
